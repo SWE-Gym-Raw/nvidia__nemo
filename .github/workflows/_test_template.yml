@@ -112,6 +112,7 @@ jobs:
           with:
             name: ${{ steps.main.outputs.coverage_report }}
             path: ${{ github.run_id }}/.coverage
+            include-hidden-files: true
             
         - uses: "NVIDIA/NeMo/.github/actions/cancel-workflow@main"
           if: failure() && inputs.IS_OPTIONAL == false && !contains(github.event.pull_request.labels.*.name, 'no-fail-fast')
