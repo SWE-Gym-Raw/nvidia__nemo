@@ -27,9 +27,9 @@ import numpy as np
 import safetensors
 import tensorrt_llm
 import torch
+import torch.nn.functional as F
 import wrapt
 from tensorrt_llm._utils import numpy_to_torch
-import torch.nn.functional as F
 
 from nemo.deploy import ITritonDeployable
 from nemo.export.tarutils import TarPath, unpack_tarball
@@ -1192,7 +1192,9 @@ class TensorRTLLM(ITritonDeployable):
             if generation_logits_available:
                 output_texts, generation_logits = self.forward(**infer_input)
                 # generation_logits is a 4d tensor of dim [1,bs,#generated_tokens,vocab_size], return just the 3d tensor
-                output_dict["generation_logits"] = np.array([generation_logit.cpu().numpy() for generation_logit in generation_logits])
+                output_dict["generation_logits"] = np.array(
+                    [generation_logit.cpu().numpy() for generation_logit in generation_logits]
+                )
             elif context_logits_available:
                 output_texts, context_logits = self.forward(**infer_input)
                 # context_logits is a tensor shaped [bs, #tokens, vocab_size]
@@ -1202,7 +1204,7 @@ class TensorRTLLM(ITritonDeployable):
                 for i, tensor in enumerate(context_logits):
                     tensor_len = tensor.shape[0]
                     if tensor_len < padding_len:
-                        #context_logits[i] = torch.cat([tensor, torch.zeros(padding_len - tensor_len, dtype=torch.long, device=tensor.device)], dim=0)
+                        # context_logits[i] = torch.cat([tensor, torch.zeros(padding_len - tensor_len, dtype=torch.long, device=tensor.device)], dim=0)
                         padding_diff = padding_len - tensor_len
                         # padding_diff num of rows of zeros are added at the bottom
                         context_logits[i] = F.pad(tensor, (0, 0, 0, padding_diff), mode='constant', value=0)
