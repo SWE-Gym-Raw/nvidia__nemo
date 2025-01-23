@@ -341,17 +341,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.L0_Unit_Tests_CPU_ASR.outputs.coverage_report }}
-          path: coverage.L0_Unit_Tests_CPU_ASR.json
+          path: coverage.L0_Unit_Tests_CPU_ASR
       
       - name: Download GPU coverage
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.L0_Unit_Tests_GPU_ASR.outputs.coverage_report }}
-          path: coverage.L0_Unit_Tests_GPU_ASR.json
+          path: coverage.L0_Unit_Tests_GPU_ASR
       
       - name: Combine
         run: |
           pip install coverage
+          ls -al
           coverage combine coverage.L0_Unit_Tests_CPU_ASR.json coverage.L0_Unit_Tests_GPU_ASR.json
           coverage report
 
